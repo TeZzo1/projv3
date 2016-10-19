@@ -3,22 +3,17 @@
 
 #define VELIKOST_RADKU 16
 
-
 int delka(char *slovo);
 int strcmp(char *co, char *cim);
 int atoi(char *slovo);
 void hexa_vypis();
 void normalni_vypis();
-char *dec2hex(int dec);
-int pow(int cislo, int mocnina);
+void hex2text_vypis();
 
 int main(int argc, char *argv[])
 {
     //int start = 0, pocet = -1;
-
-    printf("\n");
-
-    if(argc > 1)
+    if(argc == 3)
         for(int i = 0; i < argc; i++){
             if(strcmp(argv[i], "-s")){
                 //start = atoi(argv[i+1]);
@@ -28,26 +23,26 @@ int main(int argc, char *argv[])
                 //pocet = atoi(argv[i+1]);
                 printf("Not supported yet");
             }
+            if(strcmp(argv[i], "-S")){
+                printf("Not supported yet");
+            }
+        }
+    if(argc == 2)
+        for(int i = 1; i < argc; i++){
             if(strcmp(argv[i], "-x")){
                 hexa_vypis();
             }
-            if(strcmp(argv[i], "-S")){
-                printf("Not supported yet");
-
-            }
             if(strcmp(argv[i], "-r")){
-                printf("Not supported yet");
+                printf("XXX");
+                hex2text_vypis();
+                //printf("Not supported yet");
                 //dec();
             }
         }
-    else if(argc == 1)
+    if(argc == 1)
         normalni_vypis();
-    else
-        printf("Spatne zadane argumenty!\nProgram bude ukoncen.");
-
-
-
-
+    if(argc == 0 || argc == 4)
+        printf("Spatne zadane argumenty!\nProgram bude ukoncen.\n");
 
     return 0;
 }
@@ -57,7 +52,6 @@ int delka(char *slovo){
     int i = 0;
     while(slovo[i] != '\0'){
         i++;
-        printf("%c", slovo[i]);
     }
     return i;
 }
@@ -118,18 +112,17 @@ void normalni_vypis(){
 
 void normalni_vypis(){
     char vstup[VELIKOST_RADKU + 1] = "";
-    int pocet_nacteni = 0, soupatko = 1;;
+    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0;
     while(soupatko == 1){
-        for(int i = 0; i < VELIKOST_RADKU; i++){
-            if((vstup[i] = getchar()) != EOF){
+        for(int i = 0; i < VELIKOST_RADKU; i++) {
+            if ((vstup[i] = getchar()) != EOF) {
                 pocet_nacteni++;
             }
         }
 
-
-
-        printf("00000000  ");
-
+        printf("%.8x  ", adress_counter);
+        if(pocet_nacteni % 16 == 0)
+            adress_counter = pocet_nacteni;
         //vypsání prvních 8 bajtů
         //pom zjišťuje konec textu
         //int pom = 0;
@@ -205,22 +198,13 @@ void normalni_vypis(){
             soupatko = 0;
         printf("\n");
     }
+    adress_counter += pocet_nacteni % 16;
+    printf("%.8x  \n", adress_counter);
 }
 
-int pow(int cislo, int mocnina){
-    int vysledek = 1;
-    for(int i = 0; i < mocnina; i++)
-        vysledek *= cislo;
-    return vysledek;
-}
-
-char *dec2hex(int dec){
-    int zbytek, i = 0;
-    char *vysledek;
-    while(dec / 16 == 0){
-        zbytek = dec % 16;
-        dec /= 16;
-        vysledek += zbytek * pow(16, i);
-    }
-
+void hex2text_vypis(){
+    char znak[3];
+    for(int i = 0; i < 2; i++)
+        znak[i] = getchar();
+    printf("%s", znak);
 }
