@@ -1,48 +1,56 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #define VELIKOST_RADKU 16
 
 int delka(char *slovo);
 int strcmp(char *co, char *cim);
-int atoi(char *slovo);
+int my_atoi(char *slovo);
 void hexa_vypis();
-void normalni_vypis();
+void normalni_vypis(int start);
 void hex2text_vypis();
 
 int main(int argc, char *argv[])
 {
-    //int start = 0, pocet = -1;
-    if(argc == 3)
-        for(int i = 0; i < argc; i++){
-            if(strcmp(argv[i], "-s")){
-                //start = atoi(argv[i+1]);
-                printf("Not supported yet");
-            }
-            if(strcmp(argv[i], "-n")){
-                //pocet = atoi(argv[i+1]);
-                printf("Not supported yet");
-            }
-            if(strcmp(argv[i], "-S")){
-                printf("Not supported yet");
-            }
+    int start = 0; // pocet = -1;
+    if(argc == 5)
+        printf("Not supported yet");
+
+    if(argc == 3){
+        if(strcmp(argv[1], "-s")){
+            start = my_atoi(argv[2]);
+            if(start >= 0)
+                normalni_vypis(start);
+            else
+                printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+            //printf("Not supported yet");
         }
-    if(argc == 2)
-        for(int i = 1; i < argc; i++){
-            if(strcmp(argv[i], "-x")){
-                hexa_vypis();
-            }
-            if(strcmp(argv[i], "-r")){
-                printf("XXX");
-                hex2text_vypis();
-                //printf("Not supported yet");
-                //dec();
-            }
+         else if(strcmp(argv[1], "-n")){
+            //pocet = my_atoi(argv[i+1]);
+            printf("Not supported yet");
         }
+        else if (strcmp(argv[1], "-S"))
+                printf("Not supported yet");
+            else
+                printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+
+    }
+
+    if(argc == 2){
+        if(strcmp(argv[1], "-x"))
+            hexa_vypis();
+        if(strcmp(argv[1], "-r"))
+            hex2text_vypis();
+        else
+            printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+    }
+
     if(argc == 1)
-        normalni_vypis();
+        normalni_vypis(start);
+
     if(argc == 0 || argc == 4)
-        printf("Spatne zadane argumenty!\nProgram bude ukoncen.\n");
+        printf("Parametry nebyly zadany spravne.\nProgram bude ukoncen.\n");
 
     return 0;
 }
@@ -65,11 +73,15 @@ int strcmp(char *co, char *cim){
     return 1;
 }
 
-int atoi(char *slovo){
+int my_atoi(char *slovo){
     int vysledek = 0;
     for(int i = 0; i < delka(slovo); i++){
-        vysledek *= 10;
-        vysledek += slovo[i] - '0';
+        if(slovo[i] <= '9' || slovo[i] >= '0'){
+            vysledek *= 10;
+            vysledek += slovo[i] - '0';
+        }
+        else
+            return -1;
     }
     return vysledek;
 }
@@ -81,14 +93,7 @@ void hexa_vypis(){
     printf("\n");
     return;
 }
-/*
-void dec(){
-    char pom[3];
-    for(int i = 0; i < 2; i++)
 
-    return;
-}
-*/
 /*
 void normalni_vypis(){
     char vstup[VELIKOST_RADKU + 1];
@@ -110,11 +115,25 @@ void normalni_vypis(){
 }
 */
 
-void normalni_vypis(){
+void normalni_vypis(int start){
     char vstup[VELIKOST_RADKU + 1] = "";
-    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0;
+    int i = 0;
+    if(start > 0) {
+        while ((vstup[0] = getchar()) != EOF && i < start)
+            i++;
+        if (vstup[0] == EOF)
+            return;
+    }
+    /*if(start > 0)
+        for(int i = 0; i < start; i++)
+            if((vstup[0] = getchar()) == EOF)
+                return;*/
+    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom;
+    if(start > 0)
+        adress_counter = i;
+    pom = i;
     while(soupatko == 1){
-        for(int i = 0; i < VELIKOST_RADKU; i++) {
+        for(i = 0; i < VELIKOST_RADKU; i++) {
             if ((vstup[i] = getchar()) != EOF) {
                 pocet_nacteni++;
             }
@@ -122,11 +141,11 @@ void normalni_vypis(){
 
         printf("%.8x  ", adress_counter);
         if(pocet_nacteni % 16 == 0)
-            adress_counter = pocet_nacteni;
+            adress_counter = pocet_nacteni + pom;
         //vypsání prvních 8 bajtů
         //pom zjišťuje konec textu
         //int pom = 0;
-        for(int i = 0; i < 8; i++){
+        for(i = 0; i < 8; i++){
             if(pocet_nacteni % 16 == 0){
                 printf("%.2x ", vstup[i]);
             }
@@ -151,7 +170,7 @@ void normalni_vypis(){
         printf(" ");
 
         //vypsání druhých 8 bajtů
-        for(int i = 8; i < 16; i++){
+        for(i = 8; i < 16; i++){
             if(pocet_nacteni % 16 == 0){
                 printf("%.2x ", vstup[i]);
             }
@@ -186,7 +205,7 @@ void normalni_vypis(){
         }
         else{
             printf("|");
-            for(int i = 0; i < VELIKOST_RADKU; i++){
+            for(i = 0; i < VELIKOST_RADKU; i++){
                 if(i < (pocet_nacteni % 16))
                     printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
                 else
@@ -198,13 +217,34 @@ void normalni_vypis(){
             soupatko = 0;
         printf("\n");
     }
-    adress_counter += pocet_nacteni % 16;
-    printf("%.8x  \n", adress_counter);
+    //vypsání posledního řádku adres jako u programu hexdump
+    /*adress_counter += pocet_nacteni % 16;
+    printf("%.8x  \n", adress_counter);*/
 }
 
 void hex2text_vypis(){
-    char znak[3];
-    for(int i = 0; i < 2; i++)
-        znak[i] = getchar();
-    printf("%s", znak);
+    char znak[2];
+    znak[1] = '\0';
+    int soupatko = 1;
+    while(soupatko == 1) {
+        for (int i = 0; i < 2; i++) {
+            znak[i] = getchar();
+            if(znak[i] == ' ')
+                znak[i] = getchar();
+            if (znak[i] == EOF)
+                soupatko = 0;
+        }
+
+        int numeric_char = (int) strtol(znak, NULL, 16);
+        if(isblank(numeric_char) && soupatko == 1)
+            continue;
+/*
+        if((numeric_char < '\x20' && soupatko == 1))
+            continue;
+*/
+        printf("%c", numeric_char);
+    }
+    printf("\n");
 }
+
+
