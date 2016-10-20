@@ -11,10 +11,11 @@ void hexa_vypis();
 void normalni_vypis(int start, int pocet);
 void hex2text_vypis();
 void chyba();
+void delka_retezce(int delka);
 
 int main(int argc, char *argv[])
 {
-    int start = 0, pocet = 0;
+    int start = 0, pocet = 0, delka = 0;
 
     if(argc > 5)
         chyba();
@@ -46,17 +47,21 @@ int main(int argc, char *argv[])
             if(start >= 0)
                 normalni_vypis(start, pocet);
             else
-                chyba();        }
+                chyba();
+        }
         else if(strcmp(argv[1], "-n")){
             pocet = my_atoi(argv[2]);
             if(pocet > 0)
                 normalni_vypis(start, pocet);
             else
-                chyba();        }
-        else if (strcmp(argv[1], "-S"))
-                printf("Not supported yet");
-            else
                 chyba();
+        }
+        else if (strcmp(argv[1], "-S")) {
+            delka = my_atoi(argv[2]);
+            delka_retezce(delka);
+        }
+        else
+            chyba();
     }
 
     if(argc == 2){
@@ -78,6 +83,7 @@ int main(int argc, char *argv[])
 }
 
 
+
 int delka(char *slovo){
     int i = 0;
     while(slovo[i] != '\0'){
@@ -85,6 +91,7 @@ int delka(char *slovo){
     }
     return i;
 }
+
 
 int strcmp(char *co, char *cim){
     if(delka(co) != delka(cim))
@@ -94,6 +101,7 @@ int strcmp(char *co, char *cim){
             return 0;
     return 1;
 }
+
 
 int my_atoi(char *slovo){
     int vysledek = 0;
@@ -108,6 +116,7 @@ int my_atoi(char *slovo){
     return vysledek;
 }
 
+
 void hexa_vypis(){
     char pom;
     while((pom = getchar()) != EOF)
@@ -116,13 +125,13 @@ void hexa_vypis(){
     return;
 }
 
+
 void normalni_vypis(int start, int pocet){
     char vstup[VELIKOST_RADKU + 1] = "";
-    int i = 0;
-    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom;
+    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom, i = 0;
 
     if(start > 0) {
-        while ((vstup[0] = getchar()) != EOF && i < start)
+        while ((vstup[0] = getchar()) != EOF && (i < start-1))
             i++;
         if (vstup[0] == EOF)
             return;
@@ -130,7 +139,7 @@ void normalni_vypis(int start, int pocet){
 
 
     if(start > 0)
-        adress_counter = i;
+        adress_counter = i + 1;
     pom = i;
 
     while(soupatko == 1){
@@ -207,6 +216,7 @@ void normalni_vypis(int start, int pocet){
     }
 }
 
+
 void hex2text_vypis(){
     char znak[2];
     znak[1] = '\0';
@@ -222,11 +232,37 @@ void hex2text_vypis(){
         int numeric_char = (int) strtol(znak, NULL, 16);
         if(isblank(numeric_char) && soupatko == 1)
             continue;
+        if(!isxdigit(numeric_char)){
+            printf("Tenhle vstup se mi nelibi.\nRadeji se ukoncim.\n");
+            return;
+        }
         printf("%c", numeric_char);
     }
     printf("\n");
 }
 
+
 void chyba(){
     printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+}
+
+void delka_retezce(int delka){
+    char text[delka+1];
+    text[delka + 1] = '\0';
+    int i = 0, soupatko;
+    for(i = 0; i < delka; i++){
+        if((text[i] = getchar()) == EOF)
+            return;
+        if((text[i] == '\n') || (text[i] = '\0')){
+            i = 0;
+            continue;
+        }
+        if((text[i] = getchar()) != EOF)
+            printf("%s", text);
+    }
+
+    (void)soupatko;
+    printf("%s", text);
+    /*while(soupatko){
+    }*/
 }
