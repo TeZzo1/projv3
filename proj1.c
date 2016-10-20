@@ -8,46 +8,68 @@ int delka(char *slovo);
 int strcmp(char *co, char *cim);
 int my_atoi(char *slovo);
 void hexa_vypis();
-void normalni_vypis(int start);
+void normalni_vypis(int start, int pocet);
 void hex2text_vypis();
+void chyba();
 
 int main(int argc, char *argv[])
 {
-    int start = 0; // pocet = -1;
-    if(argc == 5)
-        printf("Not supported yet");
+    int start = 0, pocet = 0;
+
+    if(argc > 5)
+        chyba();
+
+    if(argc == 5){
+        if(strcmp(argv[1], "-s") || strcmp(argv[3], "-n")){
+            pocet = my_atoi(argv[4]);
+            start = my_atoi(argv[2]);
+            if(pocet > 0 && start >= 0)
+                normalni_vypis(start, pocet);
+            else
+                chyba();
+        }
+        else if(strcmp(argv[1], "-n") || strcmp(argv[3], "-s")){
+            pocet = my_atoi(argv[2]);
+            start = my_atoi(argv[4]);
+            if(pocet > 0 && start >= 0)
+                normalni_vypis(start, pocet);
+            else
+                chyba();
+        }
+        else
+            chyba();
+    }
 
     if(argc == 3){
         if(strcmp(argv[1], "-s")){
             start = my_atoi(argv[2]);
             if(start >= 0)
-                normalni_vypis(start);
+                normalni_vypis(start, pocet);
             else
-                printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
-            //printf("Not supported yet");
-        }
-         else if(strcmp(argv[1], "-n")){
-            //pocet = my_atoi(argv[i+1]);
-            printf("Not supported yet");
-        }
+                chyba();        }
+        else if(strcmp(argv[1], "-n")){
+            pocet = my_atoi(argv[2]);
+            if(pocet > 0)
+                normalni_vypis(start, pocet);
+            else
+                chyba();        }
         else if (strcmp(argv[1], "-S"))
                 printf("Not supported yet");
             else
-                printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
-
+                chyba();
     }
 
     if(argc == 2){
         if(strcmp(argv[1], "-x"))
             hexa_vypis();
-        if(strcmp(argv[1], "-r"))
+        else if(strcmp(argv[1], "-r"))
             hex2text_vypis();
         else
-            printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+            chyba();
     }
 
     if(argc == 1)
-        normalni_vypis(start);
+        normalni_vypis(start, pocet);
 
     if(argc == 0 || argc == 4)
         printf("Parametry nebyly zadany spravne.\nProgram bude ukoncen.\n");
@@ -94,48 +116,35 @@ void hexa_vypis(){
     return;
 }
 
-/*
-void normalni_vypis(){
-    char vstup[VELIKOST_RADKU + 1];
-    while(1){
-        for(int i = 0; i < VELIKOST_RADKU; i++){
-            if((vstup[i] = getchar()) != EOF){
-                printf("%c", vstup[i]);
-
-            }
-        }
-        printf("\n");
-
-
-        printf("%d\n", delka(vstup));
-        if(delka(vstup) < 16)
-            break;
-        continue;
-    }
-}
-*/
-
-void normalni_vypis(int start){
+void normalni_vypis(int start, int pocet){
     char vstup[VELIKOST_RADKU + 1] = "";
     int i = 0;
+    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom;
+
     if(start > 0) {
         while ((vstup[0] = getchar()) != EOF && i < start)
             i++;
         if (vstup[0] == EOF)
             return;
     }
-    /*if(start > 0)
-        for(int i = 0; i < start; i++)
-            if((vstup[0] = getchar()) == EOF)
-                return;*/
-    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom;
+
+
     if(start > 0)
         adress_counter = i;
     pom = i;
+
     while(soupatko == 1){
         for(i = 0; i < VELIKOST_RADKU; i++) {
-            if ((vstup[i] = getchar()) != EOF) {
-                pocet_nacteni++;
+            if ((vstup[i] = getchar()) != EOF && soupatko == 1) {
+                if(pocet != 0 && (pocet_nacteni < pocet))
+                    pocet_nacteni++;
+                else if(pocet == 0)
+                    pocet_nacteni++;
+                else{
+                    soupatko = 0;
+                    break;
+                }
+
             }
         }
 
@@ -144,7 +153,6 @@ void normalni_vypis(int start){
             adress_counter = pocet_nacteni + pom;
         //vypsání prvních 8 bajtů
         //pom zjišťuje konec textu
-        //int pom = 0;
         for(i = 0; i < 8; i++){
             if(pocet_nacteni % 16 == 0){
                 printf("%.2x ", vstup[i]);
@@ -154,16 +162,7 @@ void normalni_vypis(int start){
                 printf("%.2x ", vstup[i]);
             else
                 printf("   ");
-            /*if(vstup[i] == '\0'){
-                printf("%.2x ", vstup[i]);
-                pom = 1;
-                i++;
-            }
-            if(pom == 1)
-                printf("   ");
-            else
-                printf("%.2x ", vstup[i]);
-            */
+
 
         }
 
@@ -180,17 +179,6 @@ void normalni_vypis(int start){
             else
                 printf("   ");
 
-            /*if(pom == 1){
-                printf("   ");
-            }
-            else {
-                if(vstup[i] == '\0'){
-                    printf("%.2x ", vstup[i]);
-                    pom = 1;
-                }
-                else
-                    printf("%.2x ", vstup[i]);
-            }*/
         }
 
         printf(" ");
@@ -217,9 +205,6 @@ void normalni_vypis(int start){
             soupatko = 0;
         printf("\n");
     }
-    //vypsání posledního řádku adres jako u programu hexdump
-    /*adress_counter += pocet_nacteni % 16;
-    printf("%.8x  \n", adress_counter);*/
 }
 
 void hex2text_vypis(){
@@ -234,17 +219,14 @@ void hex2text_vypis(){
             if (znak[i] == EOF)
                 soupatko = 0;
         }
-
         int numeric_char = (int) strtol(znak, NULL, 16);
         if(isblank(numeric_char) && soupatko == 1)
             continue;
-/*
-        if((numeric_char < '\x20' && soupatko == 1))
-            continue;
-*/
         printf("%c", numeric_char);
     }
     printf("\n");
 }
 
-
+void chyba(){
+    printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
+}
