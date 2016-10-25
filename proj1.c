@@ -278,36 +278,4 @@ void delka_retezce(int delka){
         if(text[delka] == EOF || text[0] == EOF)
             soupatko = 0;
     }
-
-
-    /*
-    char text[delka+1];
-    int i = 0, soupatko = 1;
-    for(i = 0; i < delka; i++){
-        text[i] = getchar();
-        if(text[i] == EOF || !isprint(text[i])){
-            printf(" nic ");
-            continue;
-        }
-    }
-    while(((text[i] = getchar()) != EOF) && (i < delka)){
-        if(!isprint(text[i]) || text[i] == '\n'){
-        //if(text[i] == '\n' || text[i] == '\0'){
-            i = 0;
-            continue;
-        }
-        i++;
-    }
-
-    text[i+1] = '\0';
-    printf("%s", text);
-    text[1] = '\0';
-    while(soupatko){
-        if((text[0] = getchar()) == EOF) {
-            soupatko = 0;
-            break;
-        }
-        printf("%c", text[0]);
-    }
-*/
 }
