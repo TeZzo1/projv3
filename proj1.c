@@ -244,7 +244,7 @@ void normalni_vypis(int start, int pocet){
 void hex2text_vypis(){
     char znak[2] = {'\0'};
     int soupatko = 1;
-    while(soupatko == 1) {
+    while(soupatko) {
         for (int i = 0; i < 2; i++) {
             znak[i] = (char)getchar();
             if(znak[i] == ' ')
@@ -253,7 +253,7 @@ void hex2text_vypis(){
                 return;
         }
         int numeric_char = (int) strtol(znak, NULL, 16);
-        if((isblank(numeric_char) && numeric_char != ' ') && soupatko == 1)
+        if((isblank(numeric_char) && numeric_char != ' ') && soupatko)
             continue;
         if(!isxdigit(znak[0])){
             printf("Tenhle vstup se mi nelibi.\nRadeji se ukoncim.\n");
@@ -266,16 +266,16 @@ void hex2text_vypis(){
 
 
 void delka_retezce(int delka){
-    char text[delka + 1];
+    int text[delka];
     int i = 0, soupatko = 1;
 
     while(soupatko) {
         while (i < delka) {
-            text[i] = (char)getchar();
+            text[i] = getchar();
             if (text[i] == EOF) {
-                soupatko = 0;
-                i = 0;
-                break;
+                //soupatko = 0;
+               // break;
+                return;
             }
             if (!isprint(text[i]) || text[i] == '\0' || text[i] == '\n') {
                 i = 0;
@@ -284,11 +284,13 @@ void delka_retezce(int delka){
 
             i++;
         }
-        text[i] =  '\0';
-        printf("%s", text);
-        text[1] = '\0';
+        for(i = 0; i < delka; i++) {
+            printf("%c", text[i]);
+            text[i] = '\0';
+        }
 
-        while((text[0] = (char)getchar()) != EOF){
+
+        while((text[0] = getchar()) != EOF){
             if (!isprint(text[0]) || (text[0] == '\0') || text[0] == '\n')
                 break;
             else
