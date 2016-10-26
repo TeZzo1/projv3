@@ -4,21 +4,32 @@
 
 #define VELIKOST_RADKU 16
 
+
+// načíst do intu, zjistit eof a pak uložit do charu
+//-s -n 03
+
+
+
+
+
+
 int delka(char *slovo);
 int strcmp(char *co, char *cim);
 int my_atoi(char *slovo);
 void hexa_vypis();
 void normalni_vypis(int start, int pocet);
 void hex2text_vypis();
-void chyba();
+void napoveda();
 void delka_retezce(int delka);
+void chybna_hodnota();
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     int start = 0, pocet = 0, delka = 0;
 
-    if(argc > 5)
-        chyba();
+    if (argc > 5 || argc == 4) {
+        napoveda();
+        return 0;
+    }
 
     if(argc == 5){
         if(strcmp(argv[1], "-s") || strcmp(argv[3], "-n")){
@@ -26,8 +37,10 @@ int main(int argc, char **argv)
             start = my_atoi(argv[2]);
             if(pocet > 0 && start >= 0)
                 normalni_vypis(start, pocet);
-            else
-                chyba();
+            else {
+                napoveda();
+                return 0;
+            }
         }
         else if(strcmp(argv[1], "-n") || strcmp(argv[3], "-s")){
             pocet = my_atoi(argv[2]);
@@ -35,10 +48,12 @@ int main(int argc, char **argv)
             if(pocet > 0 && start >= 0)
                 normalni_vypis(start, pocet);
             else
-                chyba();
+                chybna_hodnota();
         }
-        else
-            chyba();
+        else {
+            napoveda();
+            return 0;
+        }
     }
 
     if(argc == 3){
@@ -47,21 +62,26 @@ int main(int argc, char **argv)
             if(start >= 0)
                 normalni_vypis(start, pocet);
             else
-                chyba();
+                chybna_hodnota();
         }
         else if(strcmp(argv[1], "-n")){
             pocet = my_atoi(argv[2]);
             if(pocet > 0)
                 normalni_vypis(start, pocet);
             else
-                chyba();
+                chybna_hodnota();
         }
         else if (strcmp(argv[1], "-S")) {
             delka = my_atoi(argv[2]);
-            delka_retezce(delka);
+            //if(delka < 200 && delka > 0)
+                delka_retezce(delka);
+            //else
+            //   chybna_hodnota();
         }
-        else
-            chyba();
+        else {
+            napoveda();
+            return 0;
+        }
     }
 
     if(argc == 2){
@@ -69,20 +89,19 @@ int main(int argc, char **argv)
             hexa_vypis();
         else if(strcmp(argv[1], "-r"))
             hex2text_vypis();
-        else
-            chyba();
+        else {
+            napoveda();
+            return 0;
+        }
     }
 
     if(argc == 1)
         normalni_vypis(start, pocet);
 
-    if(argc == 0 || argc == 4)
-        printf("Parametry nebyly zadany spravne.\nProgram bude ukoncen.\n");
-
     return 0;
 }
 
-
+/* MOJE FUNKCE */
 
 int delka(char *slovo){
     int i = 0;
@@ -105,6 +124,14 @@ int strcmp(char *co, char *cim){
 
 int my_atoi(char *slovo){
     int vysledek = 0;
+    /*int j;
+    while(slovo[0] != '0') {
+        for (j = 0; j < delka(slovo); j++) {
+            slovo[j] = slovo[j + 1];
+            slovo[j+1] = '\0';
+        }
+
+    }*/
     for(int i = 0; i < delka(slovo); i++){
         if(slovo[i] <= '9' || slovo[i] >= '0'){
             vysledek *= 10;
@@ -117,17 +144,18 @@ int my_atoi(char *slovo){
 }
 
 
+/* FUNKCE PAEAMETRŮ */
+
 void hexa_vypis(){
-    char pom;
+    int pom;
     while((pom = getchar()) != EOF)
-        printf("%.2x", pom);
+        printf("%02x", pom);
     printf("\n");
-    return;
 }
 
 
 void normalni_vypis(int start, int pocet){
-    char vstup[VELIKOST_RADKU + 1] = "";
+    int vstup[VELIKOST_RADKU + 1] = {'\0'};
     int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom, i = 0;
 
     if(start > 0) {
@@ -157,18 +185,18 @@ void normalni_vypis(int start, int pocet){
             }
         }
 
-        printf("%.8x  ", adress_counter);
+        printf("%08x  ", adress_counter );
         if(pocet_nacteni % 16 == 0)
-            adress_counter = pocet_nacteni + pom;
+            adress_counter = pocet_nacteni + pom + 1;
         //vypsání prvních 8 bajtů
         //pom zjišťuje konec textu
         for(i = 0; i < 8; i++){
             if(pocet_nacteni % 16 == 0){
-                printf("%.2x ", vstup[i]);
+                printf("%02x ", vstup[i]);
             }
             else
             if(i < pocet_nacteni % 16)
-                printf("%.2x ", vstup[i]);
+                printf("%02x ", vstup[i]);
             else
                 printf("   ");
 
@@ -179,27 +207,25 @@ void normalni_vypis(int start, int pocet){
         //vypsání druhých 8 bajtů
         for(i = 8; i < 16; i++){
             if(pocet_nacteni % 16 == 0){
-                printf("%.2x ", vstup[i]);
+                printf("%02x ", vstup[i]);
             }
             else
             if(i < pocet_nacteni % 16)
-                printf("%.2x ", vstup[i]);
+                printf("%02x ", vstup[i]);
             else
                 printf("   ");
 
         }
 
-        printf(" ");
-
         // výpis textu po 16 bajtech
         if(pocet_nacteni % 16 == 0){
-            printf("|");
+            printf(" |");
             for(int i = 0; i < VELIKOST_RADKU; i++)
                 printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
             printf("|");
         }
         else{
-            printf("|");
+            printf(" |");
             for(i = 0; i < VELIKOST_RADKU; i++){
                 if(i < (pocet_nacteni % 16))
                     printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
@@ -216,33 +242,28 @@ void normalni_vypis(int start, int pocet){
 
 
 void hex2text_vypis(){
-    char znak[2];
-    znak[1] = '\0';
+    char znak[2] = {'\0'};
     int soupatko = 1;
     while(soupatko == 1) {
         for (int i = 0; i < 2; i++) {
-            znak[i] = getchar();
+            znak[i] = (char)getchar();
             if(znak[i] == ' ')
-                znak[i] = getchar();
+                znak[i] = (char)getchar();
             if (znak[i] == EOF)
-                soupatko = 0;
+                return;
         }
         int numeric_char = (int) strtol(znak, NULL, 16);
-        if(isblank(numeric_char) && soupatko == 1)
+        if((isblank(numeric_char) && numeric_char != ' ') && soupatko == 1)
             continue;
-        if(!isxdigit(numeric_char)){
+        if(!isxdigit(znak[0])){
             printf("Tenhle vstup se mi nelibi.\nRadeji se ukoncim.\n");
             return;
         }
         printf("%c", numeric_char);
     }
-    printf("\n");
+    //printf("\n");
 }
 
-
-void chyba(){
-    printf("Parametr nebyl zadan spravne.\nProgram bude ukoncen.\n");
-}
 
 void delka_retezce(int delka){
     char text[delka + 1];
@@ -250,7 +271,7 @@ void delka_retezce(int delka){
 
     while(soupatko) {
         while (i < delka) {
-            text[i] = getchar();
+            text[i] = (char)getchar();
             if (text[i] == EOF) {
                 soupatko = 0;
                 i = 0;
@@ -267,7 +288,7 @@ void delka_retezce(int delka){
         printf("%s", text);
         text[1] = '\0';
 
-        while((text[0] = getchar()) != EOF){
+        while((text[0] = (char)getchar()) != EOF){
             if (!isprint(text[0]) || (text[0] == '\0') || text[0] == '\n')
                 break;
             else
@@ -280,4 +301,24 @@ void delka_retezce(int delka){
         i = 0;
 
     }
+}
+
+/* CHYBOVÉ VÝPISY */
+
+void napoveda() {
+    printf("proj1 \t ©xwilla00 2016\n");
+    printf("Proj1 je nastroj pro praci s textem, ktery formatuje binarni data do textove podoby\n"
+                   "nebo text do binarny podoby.\n");
+    printf("Spusteni bez parametru:\n");
+    printf("\tProgram prevede vstupni retezec na hexadecimalni.\n");
+    printf("Spusteni s parametry:\n");
+    printf("\t-s\t(skip) definuje, na ktere adrese ma vstup zacinat\n");
+    printf("\t-n\t(number-of-chars) definuje maximalni delku vstupnih bajtu ke zpracovani\n");
+    printf("\t-x\tvstupni data budou prevedena do hexadedimalni podoby\n");
+    printf("\t-S\tprogram vypise pouze retezce delsi nez zadana velikost parametru\n");
+    printf("\t-r\t(reverse) prevede hexadecimalni vstup na text\n");
+}
+
+void chybna_hodnota(){
+    printf("Hodnota parametru nebyla zadana spravne.\n");
 }
