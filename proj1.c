@@ -13,7 +13,7 @@ void hex2text_vypis();
 void chyba();
 void delka_retezce(int delka);
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     int start = 0, pocet = 0, delka = 0;
 
@@ -176,7 +176,6 @@ void normalni_vypis(int start, int pocet){
         }
 
         printf(" ");
-
         //vypsání druhých 8 bajtů
         for(i = 8; i < 16; i++){
             if(pocet_nacteni % 16 == 0){
@@ -193,7 +192,6 @@ void normalni_vypis(int start, int pocet){
         printf(" ");
 
         // výpis textu po 16 bajtech
-
         if(pocet_nacteni % 16 == 0){
             printf("|");
             for(int i = 0; i < VELIKOST_RADKU; i++)
@@ -258,7 +256,7 @@ void delka_retezce(int delka){
                 i = 0;
                 break;
             }
-            if (!isprint(text[i])) {
+            if (!isprint(text[i]) || text[i] == '\0' || text[i] == '\n') {
                 i = 0;
                 continue;
             }
@@ -270,12 +268,16 @@ void delka_retezce(int delka){
         text[1] = '\0';
 
         while((text[0] = getchar()) != EOF){
-            if (!isprint(text[0]))
+            if (!isprint(text[0]) || (text[0] == '\0') || text[0] == '\n')
                 break;
             else
                 printf("%c", text[0]);
         }
+        if(soupatko)
+            printf("\n");
         if(text[delka] == EOF || text[0] == EOF)
             soupatko = 0;
+        i = 0;
+
     }
 }
