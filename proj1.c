@@ -4,15 +4,6 @@
 
 #define VELIKOST_RADKU 16
 
-
-// načíst do intu, zjistit eof a pak uložit do charu
-//-s -n 03
-
-
-
-
-
-
 int delka(char *slovo);
 int strcmp(char *co, char *cim);
 int my_atoi(char *slovo);
@@ -73,10 +64,10 @@ int main(int argc, char **argv) {
         }
         else if (strcmp(argv[1], "-S")) {
             delka = my_atoi(argv[2]);
-            //if(delka < 200 && delka > 0)
+            if(delka > 0 && delka < 200)
                 delka_retezce(delka);
-            //else
-            //   chybna_hodnota();
+            else
+               chybna_hodnota();
         }
         else {
             napoveda();
@@ -143,7 +134,6 @@ int my_atoi(char *slovo){
     return vysledek;
 }
 
-
 /* FUNKCE PAEAMETRŮ */
 
 void hexa_vypis(){
@@ -155,52 +145,64 @@ void hexa_vypis(){
 
 
 void normalni_vypis(int start, int pocet){
-    int vstup[VELIKOST_RADKU + 1] = {'\0'};
-    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, pom, i = 0;
+    int vstup[VELIKOST_RADKU] = {'\0'};
+    int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, i = 0;
 
-    if(start > 0) {
-        while ((vstup[0] = getchar()) != EOF && (i < start-1))
+
+    //při zadání parametru -s se vyprátdní getchar M-krát
+    if(start != 0) {
+        while ((vstup[0] = getchar()) != EOF && i < start-1)
             i++;
         if (vstup[0] == EOF)
             return;
+
+        //zaznamenání adresy - kolik znaků bylo smazáno
+        adress_counter = i + 1;
     }
 
-
-    if(start > 0)
-        adress_counter = i + 1;
-    pom = i;
-
-    while(soupatko == 1){
-        for(i = 0; i < VELIKOST_RADKU; i++) {
-            if ((vstup[i] = getchar()) != EOF && soupatko == 1) {
-                if(pocet != 0 && (pocet_nacteni < pocet))
-                    pocet_nacteni++;
-                else if(pocet == 0)
-                    pocet_nacteni++;
-                else{
+    while(soupatko){
+        if(!pocet && soupatko)
+            for(i = 0; i < VELIKOST_RADKU && soupatko; i++){
+                vstup[i] = getchar();
+                if(vstup[0] == EOF)
+                    return;
+                if(vstup[i] == EOF)
                     soupatko = 0;
-                    break;
+                else
+                    pocet_nacteni++;
+            }
+
+        if(pocet && soupatko){
+            for(i = 0; i < VELIKOST_RADKU && soupatko; i++){
+                if(pocet_nacteni < pocet) {
+                    vstup[i] = getchar();
+                    if (vstup[0] == EOF)
+                        return;
+                    else if (vstup[i] == EOF)
+                        soupatko = 0;
+                    else
+                        pocet_nacteni++;
                 }
+                else
+
+                    break;
 
             }
         }
 
-        printf("%08x  ", adress_counter );
-        if(pocet_nacteni % 16 == 0)
-            adress_counter = pocet_nacteni + pom + 1;
-        //vypsání prvních 8 bajtů
-        //pom zjišťuje konec textu
+        printf("%08x  ", adress_counter);
+        adress_counter += i;
+
+        //vypsání prvních 8 bajtů v hexa
         for(i = 0; i < 8; i++){
-            if(pocet_nacteni % 16 == 0){
+            if(pocet_nacteni % 16 == 0)
                 printf("%02x ", vstup[i]);
-            }
-            else
-            if(i < pocet_nacteni % 16)
+            else if(i < pocet_nacteni % 16)
                 printf("%02x ", vstup[i]);
-            else
+            else {
                 printf("   ");
-
-
+                soupatko = 0;
+            }
         }
 
         printf(" ");
@@ -212,48 +214,56 @@ void normalni_vypis(int start, int pocet){
             else
             if(i < pocet_nacteni % 16)
                 printf("%02x ", vstup[i]);
-            else
+            else {
                 printf("   ");
-
+                soupatko = 0;
+            }
         }
 
+        printf(" |");
         // výpis textu po 16 bajtech
         if(pocet_nacteni % 16 == 0){
-            printf(" |");
             for(int i = 0; i < VELIKOST_RADKU; i++)
                 printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
-            printf("|");
         }
         else{
-            printf(" |");
             for(i = 0; i < VELIKOST_RADKU; i++){
                 if(i < (pocet_nacteni % 16))
                     printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
                 else
                     printf(" ");
             }
-            printf("|");
+
         }
+        printf("|");
+
         if(pocet_nacteni % 16 != 0)
             soupatko = 0;
         printf("\n");
+        if(pocet_nacteni == pocet)
+            return;
     }
 }
 
 
 void hex2text_vypis(){
+    int vstup[2] = {'\0'};
     char znak[2] = {'\0'};
     int soupatko = 1;
     while(soupatko) {
         for (int i = 0; i < 2; i++) {
-            znak[i] = (char)getchar();
-            if(znak[i] == ' ')
-                znak[i] = (char)getchar();
-            if (znak[i] == EOF)
+            vstup[i] = getchar();
+            if(vstup[i] == ' ')
+                vstup[i] = getchar();
+            if (vstup[i] == EOF)
                 return;
+            else{
+                znak[0] = vstup[0];
+                znak[1] = vstup[1];
+            }
         }
         int numeric_char = (int) strtol(znak, NULL, 16);
-        if((isblank(numeric_char) && numeric_char != ' ') && soupatko)
+        if(isblank(numeric_char) && numeric_char != ' ')
             continue;
         if(!isxdigit(znak[0])){
             printf("Tenhle vstup se mi nelibi.\nRadeji se ukoncim.\n");
@@ -261,20 +271,17 @@ void hex2text_vypis(){
         }
         printf("%c", numeric_char);
     }
-    //printf("\n");
 }
 
 
 void delka_retezce(int delka){
     int text[delka];
-    int i = 0, soupatko = 1;
+    int i = 0;
 
-    while(soupatko) {
+    while(1) {
         while (i < delka) {
             text[i] = getchar();
             if (text[i] == EOF) {
-                //soupatko = 0;
-               // break;
                 return;
             }
             if (!isprint(text[i]) || text[i] == '\0' || text[i] == '\n') {
@@ -296,10 +303,9 @@ void delka_retezce(int delka){
             else
                 printf("%c", text[0]);
         }
-        if(soupatko)
-            printf("\n");
+        printf("\n");
         if(text[delka] == EOF || text[0] == EOF)
-            soupatko = 0;
+            return;
         i = 0;
 
     }
@@ -308,7 +314,7 @@ void delka_retezce(int delka){
 /* CHYBOVÉ VÝPISY */
 
 void napoveda() {
-    printf("proj1 \t ©xwilla00 2016\n");
+    printf("\nPROJ1 \t ©xwilla00 2016\n\n");
     printf("Proj1 je nastroj pro praci s textem, ktery formatuje binarni data do textove podoby\n"
                    "nebo text do binarny podoby.\n");
     printf("Spusteni bez parametru:\n");
