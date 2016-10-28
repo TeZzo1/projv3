@@ -95,10 +95,8 @@ int main(int argc, char **argv) {
 /* MOJE FUNKCE */
 
 int delka(char *slovo){
-    int i = 0;
-    while(slovo[i] != '\0'){
-        i++;
-    }
+    int i;
+    for(i = 0; slovo[i] != '\0'; i++){}
     return i;
 }
 
@@ -115,14 +113,6 @@ int strcmp(char *co, char *cim){
 
 int my_atoi(char *slovo){
     int vysledek = 0;
-    /*int j;
-    while(slovo[0] != '0') {
-        for (j = 0; j < delka(slovo); j++) {
-            slovo[j] = slovo[j + 1];
-            slovo[j+1] = '\0';
-        }
-
-    }*/
     for(int i = 0; i < delka(slovo); i++){
         if(slovo[i] <= '9' || slovo[i] >= '0'){
             vysledek *= 10;
@@ -272,7 +262,44 @@ void hex2text_vypis(){
         printf("%c", numeric_char);
     }
 }
+/*
+void hex2text_vypis(){
+    int vstup[2] = {'\0'}, i;
+    char vypis[3] = {'\0'};
+    int nic;
+    while(1){
+        i = 0;
+        while((vstup[i] = getchar()) != EOF && i < 2){
+            if(vstup[i] == ' ')
+                vstup[i] = getchar();
+            vypis[i] = vstup[i];
+            i++;
+        }
+        *****for(i = 0; i < 2; i++){
+            vstup[i] = getchar();
+            if(vstup[i] == EOF) ///// SOUBOR NEČTE EOF!!!!!!
+                return;
+            if(vstup[i] == ' ')
+                vstup[i] = getchar();
+            vypis[i] = vstup[i];
 
+        }*************
+        if(vstup[0] != EOF || vstup[1] != EOF) {
+            if (isblank(vstup))
+                continue;
+            for (i = 0; i < 2; i++)
+                if (!isxdigit(vstup[i])) {
+                    printf("Chybny vstup!\n");
+                    return;
+                }
+            nic = (int) strtol(vypis, NULL, 16);
+            printf("%c", nic);
+        }
+        else
+            return;
+    }
+}
+*/
 
 void delka_retezce(int delka){
     int text[delka];
@@ -284,7 +311,7 @@ void delka_retezce(int delka){
             if (text[i] == EOF) {
                 return;
             }
-            if (!isprint(text[i]) || text[i] == '\0' || text[i] == '\n') {
+            if (!isprint(text[i])) {
                 i = 0;
                 continue;
             }
@@ -298,7 +325,7 @@ void delka_retezce(int delka){
 
 
         while((text[0] = getchar()) != EOF){
-            if (!isprint(text[0]) || (text[0] == '\0') || text[0] == '\n')
+            if (!isprint(text[0]))
                 break;
             else
                 printf("%c", text[0]);
