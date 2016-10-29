@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         if(strcmp(argv[1], "-s") || strcmp(argv[3], "-n")){
             pocet = my_atoi(argv[4]);
             start = my_atoi(argv[2]);
-            if(pocet > 0 && start >= 0)
+            if(pocet && start >= 0)
                 normalni_vypis(start, pocet);
             else {
                 napoveda();
@@ -156,13 +156,13 @@ void normalni_vypis(int start, int pocet){
                 vstup[i] = getchar();
                 if(vstup[0] == EOF)
                     return;
-                if(vstup[i] == EOF)
+                else if(vstup[i] == EOF)
                     soupatko = 0;
                 else
                     pocet_nacteni++;
             }
 
-        if(pocet && soupatko){
+        else if(pocet && soupatko){
             for(i = 0; i < VELIKOST_RADKU && soupatko; i++){
                 if(pocet_nacteni < pocet) {
                     vstup[i] = getchar();
@@ -242,21 +242,19 @@ void hex2text_vypis(){
     int soupatko = 1;
     while(soupatko) {
         for (int i = 0; i < 2; i++) {
-            vstup[i] = getchar();
-            if(vstup[i] == ' ')
-                vstup[i] = getchar();
-            if (vstup[i] == EOF)
-                return;
-            else{
-                znak[0] = vstup[0];
-                znak[1] = vstup[1];
+            if((vstup[i] = getchar()) != EOF)
+            {
+                while (vstup[i] == ' ')
+                    vstup[i] = getchar();
+                znak[i] = vstup[i];
             }
+            else
+                return;
         }
         int numeric_char = (int) strtol(znak, NULL, 16);
-        if(isblank(numeric_char) && numeric_char != ' ')
-            continue;
-        if(!isxdigit(znak[0])){
-            printf("Tenhle vstup se mi nelibi.\nRadeji se ukoncim.\n");
+
+        if(!isxdigit(znak[0])) {
+            printf("Chybny vstup!\n");
             return;
         }
         printf("%c", numeric_char);
@@ -264,27 +262,29 @@ void hex2text_vypis(){
 }
 /*
 void hex2text_vypis(){
-    int vstup[2] = {'\0'}, i;
+    int vstup[2] = {'\0'}, i, soupatko = 1;
     char vypis[3] = {'\0'};
     int nic;
     while(1){
         i = 0;
-        while((vstup[i] = getchar()) != EOF && i < 2){
+        while(i < 2 && soupatko){
+            vstup[i] = getchar();
+            if(i == 0 && vstup[i] == EOF)
+                return;
+            if(i == 1 && vstup[i] == EOF){
+                vstup[1] = vstup[0];
+                vstup[0] = '0';
+                soupatko = 0;
+            }
             if(vstup[i] == ' ')
                 vstup[i] = getchar();
             vypis[i] = vstup[i];
             i++;
         }
-        *****for(i = 0; i < 2; i++){
-            vstup[i] = getchar();
-            if(vstup[i] == EOF) ///// SOUBOR NEČTE EOF!!!!!!
+        for(i = 0; i < 2; i++)
+            if(vstup[i] == EOF)
                 return;
-            if(vstup[i] == ' ')
-                vstup[i] = getchar();
-            vypis[i] = vstup[i];
-
-        }*************
-        if(vstup[0] != EOF || vstup[1] != EOF) {
+        if(vstup[0] != EOF && vstup[1] != EOF) {
             if (isblank(vstup))
                 continue;
             for (i = 0; i < 2; i++)
@@ -295,21 +295,20 @@ void hex2text_vypis(){
             nic = (int) strtol(vypis, NULL, 16);
             printf("%c", nic);
         }
-        else
-            return;
     }
 }
 */
 
 void delka_retezce(int delka){
-    int text[delka];
-    int i = 0;
-
-    while(1) {
+    int text[delka], soupatko = 1, i = 0;
+    (void)soupatko;
+    //do {
+    while(1){
         while (i < delka) {
             text[i] = getchar();
             if (text[i] == EOF) {
                 return;
+                //soupatko = 0;
             }
             if (!isprint(text[i])) {
                 i = 0;
@@ -333,9 +332,11 @@ void delka_retezce(int delka){
         printf("\n");
         if(text[delka] == EOF || text[0] == EOF)
             return;
+            //soupatko = 0;
         i = 0;
-
-    }
+        /*if(!soupatko)
+            break;*/
+    }//while(soupatko == 1);
 }
 
 /* CHYBOVÉ VÝPISY */
