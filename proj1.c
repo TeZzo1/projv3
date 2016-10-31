@@ -1,3 +1,11 @@
+/****************************************************/
+/* * *        Projekt 1 - Práce s textem        * * */
+/* * *                                          * * */
+/* * *             Tomáš Willaschek             * * */
+/* * *                 xwilla00                 * * */
+/* * *             1BIB - 2016/2017             * * */
+/****************************************************/
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -5,7 +13,7 @@
 #define VELIKOST_RADKU 16
 
 /* POMOCNÉ FUNKCE */
-int delka(char *slovo);
+int delka(char *s);
 int strcmp(char *co, char *cim);
 int my_atoi(char *slovo);
 
@@ -61,7 +69,7 @@ int main(int argc, char **argv) {
             if (delka > 0 && delka < 200)
                 delka_retezce(delka);
             else
-                chybna_hodnota();
+                chybna_hodnota();   /********************************************nebo nápověda???*******************/
         } else
             napoveda();
     }
@@ -87,25 +95,38 @@ int main(int argc, char **argv) {
 
 /* POMOCNÉ FUNKCE */
 
-/* obdoba funkce strlen */
-int delka(char *slovo) {
+/**
+ * Zjistí délku řetězce
+ * @param s - vstupní řetězec
+ * @return - číselná délka řetězce
+ */
+int delka(char *s) {
     int i;
-    for (i = 0; slovo[i] != '\0'; i++)
+    for (i = 0; s[i] != '\0'; i++)
         {}
     return i;
 }
 
-/* porovnání řetězců */
-int strcmp(char *co, char *cim) {
-    if (delka(co) != delka(cim))
+/**
+ * Porovná dané řetězce
+ * @param s1 - 1. řetězec pro porovnání
+ * @param s2 - 2. řetězec pro porovnání
+ * @return - návratová hodnota true/false
+ */
+int strcmp(char *s1, char *s2) {
+    if (delka(s1) != delka(s2))
         return 0;
-    for (int i = 0; i < delka(co); i++)
-        if (co[i] != cim[i])
+    for (int i = 0; i < delka(s1); i++)
+        if (s1[i] != s2[i])
             return 0;
     return 1;
 }
 
-/* obdoba ATOI - převede char na int, pokud je char v rozsahu 0-9 */
+/**
+ * Pokud je vstup v rozsahu 0-9, převede char na int
+ * @param slovo
+ * @return - převedená hodnota nebo chyba
+ */
 int my_atoi(char *slovo) {
     int vysledek = 0;
     for (int i = 0; i < delka(slovo); i++) {
@@ -122,7 +143,9 @@ int my_atoi(char *slovo) {
 
 /* FUNKCE PAEAMETRŮ */
 
-/* načte znak na vstupu a vypíše ho hexadecimálně */
+/**
+ * Načte znak na vstupu a vypíše ho hexadecimálně
+ */
 void hexa_vypis() {
     int pom;
     while ((pom = getchar()) != EOF)
@@ -130,7 +153,11 @@ void hexa_vypis() {
     printf("\n");
 }
 
-/* funkce pro program spuštěný bez parametru, s parametrem "-s", "-n", nebo oběma */
+/**
+ * funkce pro program spuštěný bez parametru, s parametrem "-s", "-n", nebo oběma
+ * @param start - je nenulový, pokud je zadaný parametr -s při spuštění
+ * @param pocet - je nenulový, pokud je zadaný parametr -n při spuštění
+ */
 void normalni_vypis(int start, int pocet) {
     int vstup[VELIKOST_RADKU] = {'\0'};
     int pocet_nacteni = 0, soupatko = 1, adress_counter = 0x0, i = 0;
@@ -225,8 +252,10 @@ void normalni_vypis(int start, int pocet) {
     }
 }
 
-
-/* parametr "-r" */
+/**
+ * Funkce reverse
+ * Převádí hexadecimální vstup na text
+ */
 void hex2text_vypis(){
     int vstup[2], soupatko = 1, i;
     char znak[3] = {'\0'};
@@ -260,11 +289,13 @@ void hex2text_vypis(){
     }
 }
 
-/* parametr -S */
-/* Je vytvořena proměnná char o velikosti N (zadaná velikost), do které se načítá ze vstupu a hledá se oddělovač   *
- * pokud se na nějaký narazí, funkce se zopakuje. Když není oddělovač nalezen po dobu čtení velikosti N, vypíše se *
- * obsah proměnné na obrazovku a další funkce vypisuje znaky ze vstupu dokud nenarazí na oddělovač nebo EOF.       *
- * Cyklus se opoakuje, dokud nenarazí na EOF                                                                       */
+
+/**
+ * Parametr -S
+ * Do proměnné o velikosti N (zadaná hodnota) se načítá ze vstupu a hledají se oddělovače, pokud jsou nalezeny, funkce
+ * se opakuje
+ * @param delka - minimální délka řetězce, aby byl vypsán
+ */
 void delka_retezce(int delka) {
     int text[delka], soupatko = 1, i = 0;
 
@@ -309,7 +340,9 @@ void delka_retezce(int delka) {
 }
 
 /* CHYBOVÉ VÝPISY */
-
+/**
+ * Vypíše nápovědu
+ */
 void napoveda() {
     printf("\nPROJ1 \t ©xwilla00 2016\n\n");
     printf("Proj1 je nastroj pro praci s textem, ktery formatuje binarni data do textove podoby\n"
