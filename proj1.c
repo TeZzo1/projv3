@@ -15,7 +15,7 @@
 /* POMOCNÉ FUNKCE */
 int delka(char *s);
 int strcmp(char *co, char *cim);
-int my_atoi(char *slovo);
+int my_atoi(char *s);
 
 /* FUNKCE PARAMETRŮ */
 void hexa_vypis();
@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
                 normalni_vypis(start, pocet);
             else
                 napoveda();
-
         } else if (strcmp(argv[1], "-n") || strcmp(argv[3], "-s")) {
             pocet = my_atoi(argv[2]);
             start = my_atoi(argv[4]);
@@ -90,9 +89,6 @@ int main(int argc, char **argv) {
 }
 
 
-
-/* proměnná "soupatko" slouží jako booleanovská proměnná stavů 'true' a 'falce' */
-
 /* POMOCNÉ FUNKCE */
 
 /**
@@ -124,15 +120,15 @@ int strcmp(char *s1, char *s2) {
 
 /**
  * Pokud je vstup v rozsahu 0-9, převede char na int
- * @param slovo
+ * @param s
  * @return - převedená hodnota nebo chyba
  */
-int my_atoi(char *slovo) {
+int my_atoi(char *s) {
     int vysledek = 0;
-    for (int i = 0; i < delka(slovo); i++) {
-        if (slovo[i] <= '9' || slovo[i] >= '0') {
+    for (int i = 0; i < delka(s); i++) {
+        if (s[i] <= '9' && s[i] >= '0') {
             vysledek *= 10;
-            vysledek += slovo[i] - '0';
+            vysledek += s[i] - '0';
         } else
             return -1;
     }
@@ -143,6 +139,7 @@ int my_atoi(char *slovo) {
 
 /* FUNKCE PAEAMETRŮ */
 
+/* proměnná "soupatko" slouží jako booleanovská proměnná stavů 'true' a 'falce' */
 /**
  * Načte znak na vstupu a vypíše ho hexadecimálně
  */
@@ -208,9 +205,9 @@ void normalni_vypis(int start, int pocet) {
 
         //vypsání prvních 8 bajtů v hexa
         for (i = 0; i < 8; i++) {
-            if (pocet_nacteni % 16 == 0 || i < pocet_nacteni % 16)
+            /* pokud došly znaky na vstupu, doplní se mezery */
+            if (pocet_nacteni % VELIKOST_RADKU == 0 || i < pocet_nacteni % VELIKOST_RADKU)
                 printf("%02x ", vstup[i]);
-            /* pokud došly znaky na vstupu, doplní se mezery = a cyklus se po dokončení zastaví protože soupatko bude 0 */
             else {
                 printf("   ");
                 soupatko = 0;
@@ -219,8 +216,8 @@ void normalni_vypis(int start, int pocet) {
         printf(" ");
 
         //vypsání druhých 8 bajtů
-        for (i = 8; i < 16; i++) {
-            if (pocet_nacteni % 16 == 0 || i < pocet_nacteni % 16)
+        for (i = 8; i < VELIKOST_RADKU; i++) {
+            if (pocet_nacteni % VELIKOST_RADKU == 0 || i < pocet_nacteni % VELIKOST_RADKU)
                 printf("%02x ", vstup[i]);
             else {
                 printf("   ");
@@ -230,20 +227,20 @@ void normalni_vypis(int start, int pocet) {
 
         printf(" |");
         // výpis textu po 16 bajtech
-        if (pocet_nacteni % 16 == 0)
+        if (pocet_nacteni % VELIKOST_RADKU == 0)
             for (i = 0; i < VELIKOST_RADKU; i++)
                 /* pokud je znak tisknutelný, tak se vypíše, jinak se vypíše tečka */
                 printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
         else
             for (i = 0; i < VELIKOST_RADKU; i++) {
-                if (i < pocet_nacteni % 16)
+                if (i < pocet_nacteni % VELIKOST_RADKU)
                     printf("%c", isprint(vstup[i]) ? vstup[i] : '.');
                 else
                     printf(" ");
             }
         printf("|");
         /* pokud bylo načteno méně než 16 znaků ze vstupu, znamená to, že nastal EOF */
-        if (pocet_nacteni % 16 != 0)
+        if (pocet_nacteni % VELIKOST_RADKU != 0)
             soupatko = 0;
         printf("\n");
         /* kontrola parametru "-n" */
@@ -289,7 +286,6 @@ void hex2text_vypis(){
     }
 }
 
-
 /**
  * Parametr -S
  * Do proměnné o velikosti N (zadaná hodnota) se načítá ze vstupu a hledají se oddělovače, pokud jsou nalezeny, funkce
@@ -311,7 +307,6 @@ void delka_retezce(int delka) {
                 i = 0;
                 continue;
             }
-
             i++;
         }
 
