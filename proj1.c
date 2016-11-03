@@ -14,15 +14,15 @@
 
 /* POMOCNÉ FUNKCE */
 int delka(char *s);
-int strcmp(char *co, char *cim);
+int strcmp(char *s1, char *s2);
 int my_atoi(char *s);
 
 /* FUNKCE PARAMETRŮ */
 void hexa_vypis();
 void normalni_vypis(int start, int pocet);
 void hex2text_vypis();
-void napoveda();
 void delka_retezce(int delka);
+void napoveda();
 void chybna_hodnota();
 
 int main(int argc, char **argv) {
@@ -38,8 +38,9 @@ int main(int argc, char **argv) {
             if (pocet && start >= 0)
                 normalni_vypis(start, pocet);
             else
-                napoveda();
-        } else if (strcmp(argv[1], "-n") || strcmp(argv[3], "-s")) {
+                chybna_hodnota();
+        }
+        else if (strcmp(argv[1], "-n") || strcmp(argv[3], "-s")) {
             pocet = my_atoi(argv[2]);
             start = my_atoi(argv[4]);
             if (pocet > 0 && start >= 0)
@@ -57,18 +58,20 @@ int main(int argc, char **argv) {
                 normalni_vypis(start, pocet);
             else
                 chybna_hodnota();
-        } else if (strcmp(argv[1], "-n")) {
+        }
+        else if (strcmp(argv[1], "-n")) {
             pocet = my_atoi(argv[2]);
             if (pocet > 0)
                 normalni_vypis(start, pocet);
             else
                 chybna_hodnota();
-        } else if (strcmp(argv[1], "-S")) {
+        }
+        else if (strcmp(argv[1], "-S")) {
             delka = my_atoi(argv[2]);
             if (delka > 0 && delka < 200)
                 delka_retezce(delka);
             else
-                chybna_hodnota();   /********************************************nebo nápověda???*******************/
+                chybna_hodnota();
         } else
             napoveda();
     }
@@ -204,7 +207,7 @@ void normalni_vypis(int start, int pocet) {
         adress_counter += i;
 
         //vypsání prvních 8 bajtů v hexa
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < VELIKOST_RADKU/2; i++) {
             /* pokud došly znaky na vstupu, doplní se mezery */
             if (pocet_nacteni % VELIKOST_RADKU == 0 || i < pocet_nacteni % VELIKOST_RADKU)
                 printf("%02x ", vstup[i]);
@@ -214,9 +217,9 @@ void normalni_vypis(int start, int pocet) {
             }
         }
         printf(" ");
-
+        /* i < 8 nebo i = 8 z důvodu formátování - hexa výpis má uprostřed mezeru navíc */
         //vypsání druhých 8 bajtů
-        for (i = 8; i < VELIKOST_RADKU; i++) {
+        for (i = VELIKOST_RADKU/2; i < VELIKOST_RADKU; i++) {
             if (pocet_nacteni % VELIKOST_RADKU == 0 || i < pocet_nacteni % VELIKOST_RADKU)
                 printf("%02x ", vstup[i]);
             else {
@@ -254,19 +257,26 @@ void normalni_vypis(int start, int pocet) {
  * Převádí hexadecimální vstup na text
  */
 void hex2text_vypis(){
-    int vstup[2], soupatko = 1, i;
+    int vstup[2], soupatko = 1, i, dec_value;
     char znak[3] = {'\0'};
 
     while(soupatko) {
         for (i = 0; i < 2 && soupatko; i++) {
             if ((vstup[i] = getchar()) != EOF) {
-                /* pokud je na vstupu mezera (tabulátor a jiné bílé znaky), načte se místo ní další znak */
-                while (isblank(vstup[i]))
-                    if((vstup[i] = getchar()) == EOF)
+                /* pokud je na vstupu bílý znak, načte se místo něj další */
+                while (isspace(vstup[i]))
+                    if ((vstup[i] = getchar()) == EOF)
                         soupatko = 0;
+
                 znak[i] = vstup[i];
+
             } else
                 soupatko = 0;
+        }
+        if(vstup[1] == EOF){
+            znak[1] = vstup[0];
+            znak[0] = '0';
+            printf("%c", (int)strtol(znak, NULL, 16));
         }
 
         /* kontrola hexadecimálních znaků */
@@ -279,8 +289,8 @@ void hex2text_vypis(){
 
         if (soupatko) {
             /* převedení znaku na číselnou hodnotu a vypsání */
-            int pom = (int) strtol(znak, NULL, 16);
-            printf("%c", pom);
+            dec_value = (int) strtol(znak, NULL, 16);
+            printf("%c", dec_value);
 
         }
     }
@@ -294,16 +304,14 @@ void hex2text_vypis(){
  */
 void delka_retezce(int delka) {
     int text[delka], soupatko = 1, i = 0;
-
     while (soupatko) {
         /* hledání oddělovače nebo EOF */
         while (i < delka && soupatko) {
             text[i] = getchar();
             if (text[i] == EOF) {
-                //return;
                 soupatko = 0;
             }
-            if (!isprint(text[i]) && soupatko) {
+            if (!isprint(text[i]) && !isblank(text[i]) && soupatko) {
                 i = 0;
                 continue;
             }
@@ -318,7 +326,7 @@ void delka_retezce(int delka) {
 
         /* vypisování dalších znaků dokud není nalezen oddělovač nebo EOF */
         while ((text[0] = getchar()) != EOF && soupatko) {
-            if (!isprint(text[0]))
+            if (!isprint(text[0]) && !isblank(text[0]))
                 break;
             else
                 printf("%c", text[0]);
@@ -353,5 +361,38 @@ void napoveda() {
 }
 
 void chybna_hodnota() {
-    printf("Hodnota parametru nebyla zadana spravne.\n");
+    fprintf(stderr, "Ciselna hodnota parametru nebyla zadana spravne.\n");
 }
+
+/*
+void hex2text_vypis(){
+    int vstup[2], soupatko = 1, i;
+    char znak[3] = {'\0'};
+
+    while(soupatko) {
+        for (i = 0; i < 2 && soupatko; i++) {
+            if ((vstup[i] = getchar()) != EOF) {
+                / pokud je na vstupu mezera (tabulátor a jiné bílé znaky), načte se místo ní další znak /
+                while (isblank(vstup[i]))
+                    if((vstup[i] = getchar()) == EOF)
+                        soupatko = 0;
+                znak[i] = vstup[i];
+            } else
+                soupatko = 0;
+        }
+        /kontrola hexadecimálních znaků *
+        for (i = 0; i < 2 && soupatko; i++)
+            * pokud zde není isprint() tak to vyhodnotí EOF jako chybu *
+            if (!isxdigit(znak[i]) && isprint(znak[i])) {
+                printf("\nZnak \"%c\" neni v rozsahu 0-9a-fA-F!\n", znak[i]);
+                soupatko = 0;
+            }
+
+        if (soupatko) {
+            * převedení znaku na číselnou hodnotu a vypsání *
+            int pom = (int) strtol(znak, NULL, 16);
+            printf("%c", pom);
+
+        }
+    }
+}*/
