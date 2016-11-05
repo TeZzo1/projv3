@@ -363,36 +363,3 @@ void napoveda() {
 void chybna_hodnota() {
     fprintf(stderr, "Ciselna hodnota parametru nebyla zadana spravne.\n");
 }
-
-/*
-void hex2text_vypis(){
-    int vstup[2], soupatko = 1, i;
-    char znak[3] = {'\0'};
-
-    while(soupatko) {
-        for (i = 0; i < 2 && soupatko; i++) {
-            if ((vstup[i] = getchar()) != EOF) {
-                / pokud je na vstupu mezera (tabulátor a jiné bílé znaky), načte se místo ní další znak /
-                while (isblank(vstup[i]))
-                    if((vstup[i] = getchar()) == EOF)
-                        soupatko = 0;
-                znak[i] = vstup[i];
-            } else
-                soupatko = 0;
-        }
-        /kontrola hexadecimálních znaků *
-        for (i = 0; i < 2 && soupatko; i++)
-            * pokud zde není isprint() tak to vyhodnotí EOF jako chybu *
-            if (!isxdigit(znak[i]) && isprint(znak[i])) {
-                printf("\nZnak \"%c\" neni v rozsahu 0-9a-fA-F!\n", znak[i]);
-                soupatko = 0;
-            }
-
-        if (soupatko) {
-            * převedení znaku na číselnou hodnotu a vypsání *
-            int pom = (int) strtol(znak, NULL, 16);
-            printf("%c", pom);
-
-        }
-    }
-}*/
